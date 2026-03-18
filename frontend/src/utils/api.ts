@@ -29,8 +29,8 @@ function getBackendUrl(): string {
     return `http://${host}:8000`;
   }
 
-  // Fallback to env var or empty
-  return envUrl || '';
+  // Fallback to env var or the live Render production URL
+  return envUrl || 'https://school-campus-3.onrender.com';
 }
 
 export const BACKEND_URL = getBackendUrl();
