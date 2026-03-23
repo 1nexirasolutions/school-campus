@@ -61,49 +61,7 @@ export default function LoginScreen() {
     }
   };
 
-  const handleDemoLogin = async (role: string) => {
-    setLoading(role);
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/demo-login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role }),
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        await AsyncStorage.setItem('session_token', data.session_token);
-        // Refresh user state in AuthContext
-        await refreshUser();
-        // Navigate to dashboard
-        if (Platform.OS === 'web' && typeof window !== 'undefined') {
-          window.location.href = '/dashboard';
-        } else {
-          router.replace('/(app)/dashboard');
-        }
-      } else {
-        const error = await response.json();
-        const msg = error.detail || 'Login failed';
-        if (Platform.OS === 'web') {
-          window.alert(msg);
-        } else {
-          const { Alert } = require('react-native');
-          Alert.alert('Error', msg);
-        }
-      }
-    } catch (error) {
-      console.error('Demo login error:', error);
-      const msg = 'Network error. Make sure the backend is running.';
-      if (Platform.OS === 'web') {
-        window.alert(msg);
-      } else {
-        const { Alert } = require('react-native');
-        Alert.alert('Error', msg);
-      }
-    } finally {
-      setLoading(null);
-    }
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -147,104 +105,55 @@ export default function LoginScreen() {
 
           {/* Login Section */}
           <View style={styles.loginSection}>
-            {/* Demo Login Buttons */}
-            <Text style={styles.demoTitle}>Quick Demo Login</Text>
-            <View style={styles.demoButtons}>
-              <TouchableOpacity
-                style={[styles.demoButton, styles.principalBtn]}
-                onPress={() => handleDemoLogin('principal')}
-                disabled={loading !== null}
-              >
-                {loading === 'principal' ? (
-                  <InlineLoader size={20} />
-                ) : (
-                  <>
-                    <Ionicons name="ribbon" size={18} color="#FFFFFF" />
-                    <Text style={styles.demoBtnText}>Principal</Text>
-                  </>
-                )}
-              </TouchableOpacity>
+            <View style={styles.loginCard}>
+              <Text style={styles.loginCardTitle}>Secure Login</Text>
 
-              <TouchableOpacity
-                style={[styles.demoButton, styles.teacherBtn]}
-                onPress={() => handleDemoLogin('teacher')}
-                disabled={loading !== null}
-              >
-                {loading === 'teacher' ? (
-                  <InlineLoader size={20} />
-                ) : (
-                  <>
-                    <Ionicons name="school" size={18} color="#FFFFFF" />
-                    <Text style={styles.demoBtnText}>Teacher</Text>
-                  </>
-                )}
-              </TouchableOpacity>
+              <View style={styles.inputContainer}>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="mail" size={20} color="#7C3AED" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Email / Phone Number"
+                    placeholderTextColor="#9CA3AF"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
 
-              <TouchableOpacity
-                style={[styles.demoButton, { backgroundColor: '#7C3AED' }]}
-                onPress={() => handleDemoLogin('class_teacher')}
-                disabled={loading !== null}
-              >
-                {loading === 'class_teacher' ? (
-                  <InlineLoader size={20} />
-                ) : (
-                  <>
-                    <Ionicons name="clipboard" size={18} color="#FFFFFF" />
-                    <Text style={styles.demoBtnText}>Class Teacher</Text>
-                  </>
-                )}
-              </TouchableOpacity>
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="lock-closed" size={20} color="#7C3AED" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    placeholderTextColor="#9CA3AF"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                  />
+                </View>
 
-              <TouchableOpacity
-                style={[styles.demoButton, styles.studentBtn]}
-                onPress={() => handleDemoLogin('student')}
-                disabled={loading !== null}
-              >
-                {loading === 'student' ? (
-                  <InlineLoader size={20} />
-                ) : (
-                  <>
-                    <Ionicons name="person" size={18} color="#FFFFFF" />
-                    <Text style={styles.demoBtnText}>Student</Text>
-                  </>
-                )}
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.passwordButton}
+                  onPress={handlePasswordLogin}
+                  disabled={loading !== null}
+                >
+                  <LinearGradient
+                    colors={['#4F46E5', '#7C3AED']}
+                    style={styles.passwordButtonGradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                  >
+                    {loading === 'password' ? <InlineLoader size={20} /> : <Text style={styles.passwordButtonText}>Sign In</Text>}
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.disclaimer}>
+                Only users added by the Principal can sign in. Contact your school admin if you don't have access.
+              </Text>
             </View>
-
-            {/* Divider */}
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            {/* Email / Password Login */}
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="Email Address"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-              <TouchableOpacity style={styles.passwordButton} onPress={handlePasswordLogin} disabled={loading !== null}>
-                {loading === 'password' ? <InlineLoader size={20} /> : <Text style={styles.passwordButtonText}>Sign In</Text>}
-              </TouchableOpacity>
-            </View>
-
-            <Text style={styles.disclaimer}>
-              Only users added by the Principal can sign in. Contact your school admin if you don't have access.
-            </Text>
           </View>
         </View>
       </LinearGradient>
@@ -306,93 +215,79 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginSection: {
-    alignItems: 'center',
-  },
-  demoTitle: {
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 12,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  demoButtons: {
-    flexDirection: 'row',
-    gap: 10,
     width: '100%',
-    justifyContent: 'center',
-    marginBottom: 16,
+    paddingBottom: 20,
   },
-  demoButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    gap: 6,
-    flex: 1,
-    maxWidth: 130,
-  },
-  principalBtn: {
-    backgroundColor: 'rgba(220, 38, 38, 0.85)',
-  },
-  teacherBtn: {
-    backgroundColor: 'rgba(37, 99, 235, 0.85)',
-  },
-  studentBtn: {
-    backgroundColor: 'rgba(5, 150, 105, 0.85)',
-  },
-  demoBtnText: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 16,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  dividerText: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    marginHorizontal: 12,
-    fontSize: 13,
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+  loginCard: {
     backgroundColor: '#FFFFFF',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 30,
+    borderRadius: 24,
+    padding: 24,
     width: '100%',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
+    alignItems: 'center',
   },
-  googleIcon: {
-    width: 24,
-    height: 24,
+  loginCardTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 20,
+    letterSpacing: 0.5,
+  },
+  inputContainer: {
+    width: '100%',
+    gap: 16,
+    marginBottom: 16,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 16,
+    height: 56,
+  },
+  inputIcon: {
     marginRight: 12,
   },
-  googleButtonText: {
+  input: {
+    flex: 1,
+    color: '#1F2937',
+    fontSize: 16,
+    height: '100%',
+  },
+  passwordButton: {
+    marginTop: 8,
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  passwordButtonGradient: {
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  passwordButtonText: {
+    color: '#FFFFFF',
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333333',
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   disclaimer: {
     marginTop: 20,
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 13,
+    color: '#6B7280',
     textAlign: 'center',
+    paddingHorizontal: 10,
+    lineHeight: 18,
   },
 });
