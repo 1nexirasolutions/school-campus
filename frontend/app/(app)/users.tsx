@@ -27,6 +27,7 @@ interface User {
   roll_number?: string;
   admission_number?: string;
   mobile_number?: string;
+  password?: string;
   assigned_subjects?: { class_name: string; section: string; subject: string }[];
 }
 
@@ -491,6 +492,9 @@ export default function UsersScreen() {
                     <Text style={styles.userEmail}>{user.email}</Text>
                     {user.mobile_number && (
                       <Text style={styles.userMeta}>📱 {user.mobile_number}</Text>
+                    )}
+                    {user.password && (
+                      <Text style={styles.userMeta}>🔑 Password: {user.password}</Text>
                     )}
                     {user.assigned_class && (
                       <Text style={styles.userClass}>

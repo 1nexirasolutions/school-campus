@@ -63,6 +63,7 @@ class User(BaseModel):
     roll_number: Optional[str] = None
     admission_number: Optional[str] = None
     mobile_number: Optional[str] = None
+    password: Optional[str] = None
     push_tokens: List[str] = []
     assigned_subjects: List[Any] = []
     created_at: datetime
@@ -89,6 +90,7 @@ class UserCreate(BaseModel):
     roll_number: Optional[str] = None
     admission_number: Optional[str] = None
     mobile_number: Optional[str] = None
+    password: Optional[str] = None
 
 class ProfileUpdate(BaseModel):
     name: Optional[str] = None
@@ -460,7 +462,14 @@ class LoginRequest(BaseModel):
 
 @api_router.post("/auth/login-password")
 async def login_password(request: LoginRequest, response: Response):
-    user = await db.users.find_one({"email": request.email}, {"_id": 0})
+    # Lookup by either strict email match or mobile_number match
+    user = await db.users.find_one({
+        "$or": [
+            {"email": request.email},
+            {"mobile_number": request.email}
+        ]
+    }, {"_id": 0})
+    
     if not user:
         raise HTTPException(status_code=401, detail="Invalid email or password")
         
@@ -847,6 +856,7 @@ async def create_user(
         "roll_number": new_user_data.roll_number,
         "admission_number": new_user_data.admission_number,
         "mobile_number": new_user_data.mobile_number,
+        "password": new_user_data.password or "password123",
         "created_at": datetime.now(timezone.utc)
     }
     await db.users.insert_one(new_user)
