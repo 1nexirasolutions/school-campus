@@ -7,7 +7,9 @@ import {
   Image,
   SafeAreaView,
   Dimensions,
+  Dimensions,
   Platform,
+  TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
@@ -23,6 +25,42 @@ export default function LoginScreen() {
   const { login, refreshUser } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handlePasswordLogin = async () => {
+    if (!email || !password) {
+      alert("Please enter email and password");
+      return;
+    }
+    setLoading('password');
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/login-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        await AsyncStorage.setItem('session_token', data.session_token);
+        await refreshUser();
+        if (Platform.OS === 'web' && typeof window !== 'undefined') {
+          window.location.href = '/dashboard';
+        } else {
+          router.replace('/(app)/dashboard');
+        }
+      } else {
+        const error = await response.json();
+        alert(error.detail || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Password login error:', error);
+      alert('Network error. Make sure the backend is running.');
+    } finally {
+      setLoading(null);
+    }
+  };
 
   const handleDemoLogin = async (role: string) => {
     setLoading(role);
@@ -181,14 +219,29 @@ export default function LoginScreen() {
               <View style={styles.dividerLine} />
             </View>
 
-            {/* Google OAuth Login */}
-            <TouchableOpacity style={styles.googleButton} onPress={login}>
-              <Image
-                source={{ uri: 'https://www.google.com/favicon.ico' }}
-                style={styles.googleIcon}
+            {/* Email / Password Login */}
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Email Address"
+                placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
               />
-              <Text style={styles.googleButtonText}>Sign in with Google</Text>
-            </TouchableOpacity>
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+              <TouchableOpacity style={styles.passwordButton} onPress={handlePasswordLogin} disabled={loading !== null}>
+                {loading === 'password' ? <InlineLoader size={20} /> : <Text style={styles.passwordButtonText}>Sign In</Text>}
+              </TouchableOpacity>
+            </View>
 
             <Text style={styles.disclaimer}>
               Only users added by the Principal can sign in. Contact your school admin if you don't have access.

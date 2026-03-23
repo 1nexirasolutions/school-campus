@@ -454,6 +454,42 @@ async def exchange_session(request: Request, response: Response):
     
     return {"user": user, "session_token": session_data.session_token}
 
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+@api_router.post("/auth/login-password")
+async def login_password(request: LoginRequest, response: Response):
+    user = await db.users.find_one({"email": request.email}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+        
+    stored_password = user.get("password", "password123")
+    if request.password != stored_password:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+        
+    session_token = f"sess_{uuid.uuid4().hex}"
+    
+    session_data = {
+        "session_token": session_token,
+        "user_id": user["user_id"],
+        "created_at": datetime.now(timezone.utc),
+        "expires_at": datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRY_DAYS)
+    }
+    
+    await db.user_sessions.insert_one(session_data)
+    
+    response.set_cookie(
+        key="session_token",
+        value=session_token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=SESSION_EXPIRY_DAYS * 24 * 60 * 60
+    )
+    
+    return {"message": "Login successful", "user": user, "session_token": session_token}
+
 @api_router.post("/auth/firebase-login")
 async def firebase_login(request: Request, response: Response):
     """Login using Firebase ID token"""
