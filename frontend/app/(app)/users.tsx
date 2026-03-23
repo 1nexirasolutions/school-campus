@@ -94,6 +94,7 @@ export default function UsersScreen() {
     roll_number: '',
     admission_number: '',
     mobile_number: '',
+    password: '',
     assigned_subjects: [] as { class_name: string; section: string; subject: string }[],
   });
 
@@ -193,6 +194,7 @@ export default function UsersScreen() {
       roll_number: '',
       admission_number: '',
       mobile_number: '',
+      password: '',
       assigned_subjects: [],
     });
     setAddModalVisible(true);
@@ -256,6 +258,7 @@ export default function UsersScreen() {
         mobile_number: addData.mobile_number || null,
         roll_number: addData.roll_number || null,
         admission_number: addData.admission_number || null,
+        password: addData.password || null,
       };
       if (addData.role !== 'teacher' && addData.assigned_class) {
         payload.assigned_class = addData.assigned_class;
@@ -815,6 +818,16 @@ export default function UsersScreen() {
                 placeholder="Enter mobile number"
                 placeholderTextColor="#9CA3AF"
                 keyboardType="phone-pad"
+              />
+
+              <Text style={styles.inputLabel}>Password (Optional)</Text>
+              <TextInput
+                style={styles.textInput}
+                value={addData.password}
+                onChangeText={(text) => setAddData({ ...addData, password: text })}
+                placeholder="Leave blank for default (password123)"
+                placeholderTextColor="#9CA3AF"
+                secureTextEntry
               />
 
               {/* Student-only fields */}
