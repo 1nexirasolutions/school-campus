@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "133291356915",
+    "project_id": "schoolcampus-dc7ae",
+    "storage_bucket": "schoolcampus-dc7ae.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:133291356915:android:85572200ac0cff805ebd86",
+        "android_client_info": {
+          "package_name": "com.schoolcampus.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "133291356915-qn49ct9lp4disr9gbjv67a9bmik8v4g9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.schoolcampus.app",
+            "certificate_hash": "2345168ce8646291e5eafba09198430d38178433"
+          }
+        },
+        {
+          "client_id": "133291356915-j3nm5ccpkm868ieaufqjhhrmht3sfk53.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8I9vmknNIor1R5oi3JVfCPy7v5xcEXsU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "133291356915-j3nm5ccpkm868ieaufqjhhrmht3sfk53.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

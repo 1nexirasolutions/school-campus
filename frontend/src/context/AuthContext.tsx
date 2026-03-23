@@ -21,6 +21,12 @@ try {
 }
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_URL } from '../utils/api';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
+GoogleSignin.configure({
+  webClientId: '133291356915-j3nm5ccpkm868ieaufqjhhrmht3sfk53.apps.googleusercontent.com', // Injected from google-services.json
+});
+
 
 interface User {
   user_id: string;
@@ -227,37 +233,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async () => {
     try {
-      const FRONTEND_URL = process.env.EXPO_PUBLIC_FRONTEND_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8081');
-
-      const redirectUrl = Platform.OS === 'web'
-        ? `${FRONTEND_URL}/`
-        : Linking.createURL('/');
-
-      const authUrl = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
-
       if (Platform.OS === 'web') {
+        const FRONTEND_URL = process.env.EXPO_PUBLIC_FRONTEND_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8081');
+        const redirectUrl = `${FRONTEND_URL}/`;
+        const authUrl = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
         window.location.href = authUrl;
+        return;
+      }
+
+      // Native App: Firebase Google Sign-In
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const signInResult = await GoogleSignin.signIn();
+      const idToken = signInResult.data?.idToken;
+
+      if (!idToken) throw new Error("No ID token found");
+
+      // Verify Firebase ID Token on Backend
+      const response = await fetch(`${BACKEND_URL}/api/auth/firebase-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_token: idToken }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        await AsyncStorage.setItem('session_token', data.session_token);
+        setUser(data.user);
       } else {
-        const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUrl);
-
-        if (result.type === 'success' && result.url) {
-          const url = result.url;
-          let sessionId = null;
-
-          // Check hash first
-          if (url.includes('#session_id=')) {
-            sessionId = url.split('#session_id=')[1]?.split('&')[0];
-          } else if (url.includes('?session_id=')) {
-            sessionId = url.split('?session_id=')[1]?.split('&')[0];
-          }
-
-          if (sessionId) {
-            await processSessionId(sessionId);
-          }
-        }
+        const error = await response.json();
+        alert(error.detail || "Login failed on backend");
       }
     } catch (error) {
       console.error('Login error:', error);
+      alert('Login Error: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   };
 

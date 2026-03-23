@@ -11,6 +11,8 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import httpx
 import base64
+import firebase_admin
+from firebase_admin import auth as firebase_auth, credentials
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -22,6 +24,12 @@ db = client['schoolerp']
 
 # Create the main app
 app = FastAPI()
+
+# Initialize Firebase Admin
+try:
+    firebase_admin.get_app()
+except ValueError:
+    firebase_admin.initialize_app()
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -445,6 +453,66 @@ async def exchange_session(request: Request, response: Response):
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
     
     return {"user": user, "session_token": session_data.session_token}
+
+@api_router.post("/auth/firebase-login")
+async def firebase_login(request: Request, response: Response):
+    """Login using Firebase ID token"""
+    body = await request.json()
+    id_token = body.get("id_token")
+    
+    if not id_token:
+        raise HTTPException(status_code=400, detail="id_token required")
+        
+    try:
+        decoded_token = firebase_auth.verify_id_token(id_token)
+        email = decoded_token.get("email")
+        
+        if not email:
+            raise HTTPException(status_code=400, detail="No email found in token")
+            
+        existing_user = await db.users.find_one(
+            {"email": email},
+            {"_id": 0}
+        )
+        
+        if not existing_user:
+            logger.warning(f"Login denied for unregistered email: {email}")
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied. Your email is not registered. Please contact your principal to get added."
+            )
+            
+        user_id = existing_user["user_id"]
+        
+        # Update picture if provided
+        picture = decoded_token.get("picture")
+        if picture and not existing_user.get("picture"):
+            await db.users.update_one(
+                {"user_id": user_id},
+                {"$set": {"picture": picture}}
+            )
+            
+        # Create session
+        import uuid
+        session_token = f"fb_session_{uuid.uuid4().hex}"
+        expires_at = datetime.now(timezone.utc) + timedelta(days=SESSION_EXPIRY_DAYS)
+        await db.user_sessions.insert_one({
+            "user_id": user_id,
+            "session_token": session_token,
+            "expires_at": expires_at,
+            "created_at": datetime.now(timezone.utc)
+        })
+        
+        response.set_cookie(
+            key="session_token", value=session_token, httponly=True, secure=True, samesite="none", path="/", max_age=SESSION_EXPIRY_DAYS * 24 * 60 * 60
+        )
+        
+        user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+        return {"user": user, "session_token": session_token}
+        
+    except Exception as e:
+        logger.error(f"Firebase auth error: {e}")
+        raise HTTPException(status_code=401, detail="Invalid Firebase token")
 
 @api_router.post("/auth/demo-login")
 async def demo_login(request: Request, response: Response):
