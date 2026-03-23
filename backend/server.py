@@ -29,7 +29,7 @@ app = FastAPI()
 try:
     firebase_admin.get_app()
 except ValueError:
-    firebase_admin.initialize_app()
+    firebase_admin.initialize_app(options={'projectId': 'schoolcampus-dc7ae'})
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
