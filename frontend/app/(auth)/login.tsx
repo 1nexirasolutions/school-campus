@@ -73,34 +73,13 @@ export default function LoginScreen() {
           {/* Logo Section */}
           <View style={styles.logoSection}>
             <View style={styles.logoContainer}>
-              <Ionicons name="school" size={60} color="#FFFFFF" />
+              <Image
+                source={require('../../assets/images/icon.png')}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
             </View>
-            <Text style={styles.appName}>CampusLink ERP</Text>
-            <Text style={styles.tagline}>School Management Made Simple</Text>
-          </View>
-
-          {/* Features Section */}
-          <View style={styles.featuresSection}>
-            <View style={styles.featureRow}>
-              <View style={styles.featureItem}>
-                <Ionicons name="calendar" size={24} color="#FFFFFF" />
-                <Text style={styles.featureText}>Attendance</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <Ionicons name="time" size={24} color="#FFFFFF" />
-                <Text style={styles.featureText}>Timetable</Text>
-              </View>
-            </View>
-            <View style={styles.featureRow}>
-              <View style={styles.featureItem}>
-                <Ionicons name="document-text" size={24} color="#FFFFFF" />
-                <Text style={styles.featureText}>Assignments</Text>
-              </View>
-              <View style={styles.featureItem}>
-                <Ionicons name="notifications" size={24} color="#FFFFFF" />
-                <Text style={styles.featureText}>Notifications</Text>
-              </View>
-            </View>
+            <Text style={styles.appName}>SchoolCampus</Text>
           </View>
 
           {/* Login Section */}
@@ -171,7 +150,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     paddingTop: 60,
     paddingBottom: 40,
   },
@@ -182,10 +161,20 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  logoImage: {
+    width: 120,
+    height: 120,
   },
   appName: {
     fontSize: 32,
@@ -193,27 +182,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 8,
   },
-  tagline: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  featuresSection: {
-    paddingVertical: 20,
-  },
-  featureRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20,
-  },
-  featureItem: {
-    alignItems: 'center',
-    width: width / 3,
-  },
-  featureText: {
-    color: '#FFFFFF',
-    marginTop: 8,
-    fontSize: 14,
-  },
+
   loginSection: {
     width: '100%',
     paddingBottom: 20,
