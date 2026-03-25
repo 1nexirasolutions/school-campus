@@ -7,21 +7,20 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 try {
-  if (Constants.appOwnership !== 'expo' && Constants.executionEnvironment !== 'storeClient') {
-    Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-      } as any),
-    });
-  }
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    } as any),
+  });
 } catch (e) {
   console.log('Notifications not supported in this environment');
 }
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_URL } from '../utils/api';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
 
 GoogleSignin.configure({
   webClientId: '133291356915-j3nm5ccpkm868ieaufqjhhrmht3sfk53.apps.googleusercontent.com', // Injected from google-services.json
@@ -65,10 +64,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerForPushNotificationsAsync = async () => {
     if (Platform.OS === 'web') return;
-    if (Constants.appOwnership === 'expo' || Constants.executionEnvironment === 'storeClient') {
-      console.log('Push notifications are not supported in Expo Go. Please use a development build.');
-      return;
+
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
     }
+
     if (!Device.isDevice) {
       console.log('Must use physical device for Push Notifications');
       return;
@@ -248,11 +253,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!idToken) throw new Error("No ID token found");
 
+      // Convert Google login into a Firebase Login!
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      const userCredential = await auth().signInWithCredential(googleCredential);
+
+      // Get the true Firebase Auth ID token
+      const firebaseToken = await userCredential.user.getIdToken();
+
       // Verify Firebase ID Token on Backend
       const response = await fetch(`${BACKEND_URL}/api/auth/firebase-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id_token: idToken }),
+        body: JSON.stringify({ id_token: firebaseToken }),
       });
 
       if (response.ok) {
