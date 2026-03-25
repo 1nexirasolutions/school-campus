@@ -257,7 +257,7 @@ export default function TimetableScreen() {
                   style={styles.picker}
                 >
                   {classes.map(cls => (
-                    <Picker.Item key={cls.class_id} label={cls.name} value={cls.name} />
+                    <Picker.Item color="#000" key={cls.class_id} label={cls.name} value={cls.name} />
                   ))}
                 </Picker>
               </View>
@@ -272,7 +272,7 @@ export default function TimetableScreen() {
                   style={styles.picker}
                 >
                   {getCurrentSections().map(section => (
-                    <Picker.Item key={section} label={section} value={section} />
+                    <Picker.Item color="#000" key={section} label={section} value={section} />
                   ))}
                 </Picker>
               </View>
@@ -387,7 +387,7 @@ export default function TimetableScreen() {
                   style={styles.picker}
                 >
                   {DAYS.map(day => (
-                    <Picker.Item key={day} label={formatDay(day)} value={day} />
+                    <Picker.Item color="#000" key={day} label={formatDay(day)} value={day} />
                   ))}
                 </Picker>
               </View>
@@ -400,7 +400,7 @@ export default function TimetableScreen() {
                   style={styles.picker}
                 >
                   {TIME_SLOTS.map(slot => (
-                    <Picker.Item key={slot} label={slot} value={slot} />
+                    <Picker.Item color="#000" key={slot} label={slot} value={slot} />
                   ))}
                 </Picker>
               </View>
@@ -413,7 +413,7 @@ export default function TimetableScreen() {
                   style={styles.picker}
                 >
                   {DURATIONS.map(d => (
-                    <Picker.Item key={d} label={d} value={d} />
+                    <Picker.Item color="#000" key={d} label={d} value={d} />
                   ))}
                 </Picker>
               </View>
@@ -441,7 +441,7 @@ export default function TimetableScreen() {
                   style={styles.picker}
                 >
                   {SUBJECTS.map(subject => (
-                    <Picker.Item key={subject} label={subject} value={subject} />
+                    <Picker.Item color="#000" key={subject} label={subject} value={subject} />
                   ))}
                 </Picker>
               </View>
@@ -484,7 +484,7 @@ export default function TimetableScreen() {
                       sub.subject === formData.subject
                     );
                   }).length === 0 && (
-                      <Picker.Item label="No eligible teachers found" value="" />
+                      <Picker.Item color="#000" label="No eligible teachers found" value="" />
                     )}
                 </Picker>
               </View>

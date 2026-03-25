@@ -635,9 +635,9 @@ export default function UsersScreen() {
                         }}
                         style={styles.picker}
                       >
-                        <Picker.Item label="Not Assigned" value="" />
+                        <Picker.Item color="#000" label="Not Assigned" value="" />
                         {classes.map(cls => (
-                          <Picker.Item key={cls.class_id} label={cls.name} value={cls.name} />
+                          <Picker.Item color="#000" key={cls.class_id} label={cls.name} value={cls.name} />
                         ))}
                       </Picker>
                     </View>
@@ -652,7 +652,7 @@ export default function UsersScreen() {
                             style={styles.picker}
                           >
                             {getSectionsForClass(editData.assigned_class).map(section => (
-                              <Picker.Item key={section} label={`Section ${section}`} value={section} />
+                              <Picker.Item color="#000" key={section} label={`Section ${section}`} value={section} />
                             ))}
                           </Picker>
                         </View>
@@ -677,8 +677,8 @@ export default function UsersScreen() {
                               newSubj[index].section = cls?.sections[0] || '';
                               setEditData({ ...editData, assigned_subjects: newSubj });
                             }}>
-                            <Picker.Item label="Class" value="" />
-                            {classes.map(cls => <Picker.Item key={cls.class_id} label={cls.name} value={cls.name} />)}
+                            <Picker.Item color="#000" label="Class" value="" />
+                            {classes.map(cls => <Picker.Item color="#000" key={cls.class_id} label={cls.name} value={cls.name} />)}
                           </Picker>
                         </View>
                         <View style={[styles.inputWrapper, { flex: 0.9 }]}>
@@ -690,8 +690,8 @@ export default function UsersScreen() {
                               newSubj[index].section = val;
                               setEditData({ ...editData, assigned_subjects: newSubj });
                             }}>
-                            <Picker.Item label="Sec" value="" />
-                            {getSectionsForClass(subj.class_name).map(sec => <Picker.Item key={sec} label={sec} value={sec} />)}
+                            <Picker.Item color="#000" label="Sec" value="" />
+                            {getSectionsForClass(subj.class_name).map(sec => <Picker.Item color="#000" key={sec} label={sec} value={sec} />)}
                           </Picker>
                         </View>
                         <View style={[styles.inputWrapper, { flex: 1.5 }]}>
@@ -703,8 +703,8 @@ export default function UsersScreen() {
                               newSubj[index].subject = val;
                               setEditData({ ...editData, assigned_subjects: newSubj });
                             }}>
-                            <Picker.Item label="Subj" value="" />
-                            {SUBJECTS.map(s => <Picker.Item key={s} label={s} value={s} />)}
+                            <Picker.Item color="#000" label="Subj" value="" />
+                            {SUBJECTS.map(s => <Picker.Item color="#000" key={s} label={s} value={s} />)}
                           </Picker>
                         </View>
                         <TouchableOpacity onPress={() => {
@@ -873,9 +873,9 @@ export default function UsersScreen() {
                       }}
                       style={styles.picker}
                     >
-                      <Picker.Item label="Not Assigned" value="" />
+                      <Picker.Item color="#000" label="Not Assigned" value="" />
                       {classes.map(cls => (
-                        <Picker.Item key={cls.class_id} label={cls.name} value={cls.name} />
+                        <Picker.Item color="#000" key={cls.class_id} label={cls.name} value={cls.name} />
                       ))}
                     </Picker>
                   </View>
@@ -890,7 +890,7 @@ export default function UsersScreen() {
                           style={styles.picker}
                         >
                           {getSectionsForClass(addData.assigned_class).map(section => (
-                            <Picker.Item key={section} label={`Section ${section}`} value={section} />
+                            <Picker.Item color="#000" key={section} label={`Section ${section}`} value={section} />
                           ))}
                         </Picker>
                       </View>
@@ -915,8 +915,8 @@ export default function UsersScreen() {
                             newSubj[index].section = cls?.sections[0] || '';
                             setAddData({ ...addData, assigned_subjects: newSubj });
                           }}>
-                          <Picker.Item label="Class" value="" />
-                          {classes.map(cls => <Picker.Item key={cls.class_id} label={cls.name} value={cls.name} />)}
+                          <Picker.Item color="#000" label="Class" value="" />
+                          {classes.map(cls => <Picker.Item color="#000" key={cls.class_id} label={cls.name} value={cls.name} />)}
                         </Picker>
                       </View>
                       <View style={[styles.inputWrapper, { flex: 0.9 }]}>
@@ -928,8 +928,8 @@ export default function UsersScreen() {
                             newSubj[index].section = val;
                             setAddData({ ...addData, assigned_subjects: newSubj });
                           }}>
-                          <Picker.Item label="Sec" value="" />
-                          {getSectionsForClass(subj.class_name).map(sec => <Picker.Item key={sec} label={sec} value={sec} />)}
+                          <Picker.Item color="#000" label="Sec" value="" />
+                          {getSectionsForClass(subj.class_name).map(sec => <Picker.Item color="#000" key={sec} label={sec} value={sec} />)}
                         </Picker>
                       </View>
                       <View style={[styles.inputWrapper, { flex: 1.5 }]}>
@@ -941,8 +941,8 @@ export default function UsersScreen() {
                             newSubj[index].subject = val;
                             setAddData({ ...addData, assigned_subjects: newSubj });
                           }}>
-                          <Picker.Item label="Subj" value="" />
-                          {SUBJECTS.map(s => <Picker.Item key={s} label={s} value={s} />)}
+                          <Picker.Item color="#000" label="Subj" value="" />
+                          {SUBJECTS.map(s => <Picker.Item color="#000" key={s} label={s} value={s} />)}
                         </Picker>
                       </View>
                       <TouchableOpacity onPress={() => {

@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiRequest, formatDate } from '../../src/utils/api';
 import { Picker } from '@react-native-picker/picker';
+import UniversalDatePicker from '../../src/components/UniversalDatePicker';
 
 // Platform-aware alert helper
 const showAlert = (title: string, message: string) => {
@@ -223,7 +224,7 @@ export default function AttendanceScreen() {
                 style={styles.picker}
               >
                 {classes.map(cls => (
-                  <Picker.Item key={cls.class_id} label={cls.name} value={cls.name} />
+                  <Picker.Item color="#000" key={cls.class_id} label={cls.name} value={cls.name} />
                 ))}
               </Picker>
             </View>
@@ -238,7 +239,7 @@ export default function AttendanceScreen() {
                 style={styles.picker}
               >
                 {getCurrentSections().map(section => (
-                  <Picker.Item key={section} label={section} value={section} />
+                  <Picker.Item color="#000" key={section} label={section} value={section} />
                 ))}
               </Picker>
             </View>
@@ -247,10 +248,10 @@ export default function AttendanceScreen() {
 
         <View style={styles.dateContainer}>
           <Text style={styles.filterLabel}>Date</Text>
-          <TouchableOpacity style={styles.dateButton}>
-            <Ionicons name="calendar" size={20} color="#4F46E5" />
-            <Text style={styles.dateText}>{selectedDate}</Text>
-          </TouchableOpacity>
+          <UniversalDatePicker
+            value={selectedDate}
+            onChange={(date) => setSelectedDate(date)}
+          />
         </View>
       </View>
 

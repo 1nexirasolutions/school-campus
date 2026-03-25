@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiRequest } from '../../src/utils/api';
 import { Picker } from '@react-native-picker/picker';
+import UniversalDatePicker from '../../src/components/UniversalDatePicker';
 
 interface FeeStructure {
     fee_id: string;
@@ -559,7 +560,7 @@ export default function FeesScreen() {
                                     style={styles.picker}
                                 >
                                     {FEE_TYPES.map(t => (
-                                        <Picker.Item key={t} label={t} value={t} />
+                                        <Picker.Item color="#000" key={t} label={t} value={t} />
                                     ))}
                                 </Picker>
                             </View>
@@ -581,7 +582,7 @@ export default function FeesScreen() {
                                             style={styles.picker}
                                         >
                                             {classes.map(cls => (
-                                                <Picker.Item key={cls.class_id} label={cls.name} value={cls.name} />
+                                                <Picker.Item color="#000" key={cls.class_id} label={cls.name} value={cls.name} />
                                             ))}
                                         </Picker>
                                     </View>
@@ -594,9 +595,9 @@ export default function FeesScreen() {
                                             onValueChange={(value) => setFeeFormData({ ...feeFormData, section: value })}
                                             style={styles.picker}
                                         >
-                                            <Picker.Item label="All Sections" value="" />
+                                            <Picker.Item color="#000" label="All Sections" value="" />
                                             {getSectionsForClass(feeFormData.class_name).map(s => (
-                                                <Picker.Item key={s} label={s} value={s} />
+                                                <Picker.Item color="#000" key={s} label={s} value={s} />
                                             ))}
                                         </Picker>
                                     </View>
@@ -629,12 +630,10 @@ export default function FeesScreen() {
                             </View>
 
                             <Text style={styles.inputLabel}>Deadline *</Text>
-                            <TextInput
-                                style={styles.textInput}
+                            <UniversalDatePicker
                                 value={feeFormData.deadline}
-                                onChangeText={(text) => setFeeFormData({ ...feeFormData, deadline: text })}
+                                onChange={(date) => setFeeFormData({ ...feeFormData, deadline: date })}
                                 placeholder="YYYY-MM-DD"
-                                placeholderTextColor="#9CA3AF"
                             />
 
                             <Text style={styles.inputLabel}>Academic Year</Text>
@@ -692,7 +691,7 @@ export default function FeesScreen() {
                                     style={styles.picker}
                                 >
                                     {students.map(s => (
-                                        <Picker.Item key={s.user_id} label={s.name} value={s.user_id} />
+                                        <Picker.Item color="#000" key={s.user_id} label={s.name} value={s.user_id} />
                                     ))}
                                 </Picker>
                             </View>
@@ -751,12 +750,10 @@ export default function FeesScreen() {
                             </View>
 
                             <Text style={styles.inputLabel}>Payment Date *</Text>
-                            <TextInput
-                                style={styles.textInput}
+                            <UniversalDatePicker
                                 value={paymentFormData.payment_date}
-                                onChangeText={(text) => setPaymentFormData({ ...paymentFormData, payment_date: text })}
+                                onChange={(text) => setPaymentFormData({ ...paymentFormData, payment_date: text })}
                                 placeholder="YYYY-MM-DD"
-                                placeholderTextColor="#9CA3AF"
                             />
 
                             <Text style={styles.inputLabel}>Remarks</Text>

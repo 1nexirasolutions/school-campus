@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiRequest } from '../../src/utils/api';
+import UniversalDatePicker from '../../src/components/UniversalDatePicker';
 
 interface LeaveApplication {
   leave_id: string;
@@ -345,18 +346,16 @@ export default function LeaveScreen() {
 
             <View style={styles.modalBody}>
               <Text style={styles.inputLabel}>Start Date *</Text>
-              <TextInput
-                style={styles.textInput}
+              <UniversalDatePicker
                 value={formData.start_date}
-                onChangeText={(text) => setFormData({ ...formData, start_date: text })}
+                onChange={(date) => setFormData({ ...formData, start_date: date })}
                 placeholder="YYYY-MM-DD"
               />
 
               <Text style={styles.inputLabel}>End Date *</Text>
-              <TextInput
-                style={styles.textInput}
+              <UniversalDatePicker
                 value={formData.end_date}
-                onChangeText={(text) => setFormData({ ...formData, end_date: text })}
+                onChange={(date) => setFormData({ ...formData, end_date: date })}
                 placeholder="YYYY-MM-DD"
               />
 

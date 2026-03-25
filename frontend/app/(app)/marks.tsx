@@ -272,7 +272,7 @@ export default function MarksScreen() {
                                     style={styles.picker}
                                 >
                                     {classes.map(cls => (
-                                        <Picker.Item key={cls.class_id} label={cls.name} value={cls.name} />
+                                        <Picker.Item color="#000" key={cls.class_id} label={cls.name} value={cls.name} />
                                     ))}
                                 </Picker>
                             </View>
@@ -286,7 +286,7 @@ export default function MarksScreen() {
                                     style={styles.picker}
                                 >
                                     {getCurrentSections().map(s => (
-                                        <Picker.Item key={s} label={s} value={s} />
+                                        <Picker.Item color="#000" key={s} label={s} value={s} />
                                     ))}
                                 </Picker>
                             </View>
@@ -404,7 +404,7 @@ export default function MarksScreen() {
                                     style={styles.picker}
                                 >
                                     {students.map(s => (
-                                        <Picker.Item key={s.user_id} label={s.name} value={s.user_id} />
+                                        <Picker.Item color="#000" key={s.user_id} label={s.name} value={s.user_id} />
                                     ))}
                                 </Picker>
                             </View>
@@ -417,7 +417,7 @@ export default function MarksScreen() {
                                     style={styles.picker}
                                 >
                                     {availableSubjects.map(s => (
-                                        <Picker.Item key={s} label={s} value={s} />
+                                        <Picker.Item color="#000" key={s} label={s} value={s} />
                                     ))}
                                 </Picker>
                             </View>
@@ -430,7 +430,7 @@ export default function MarksScreen() {
                                     style={styles.picker}
                                 >
                                     {EXAM_TYPES.map(e => (
-                                        <Picker.Item key={e} label={e} value={e} />
+                                        <Picker.Item color="#000" key={e} label={e} value={e} />
                                     ))}
                                 </Picker>
                             </View>

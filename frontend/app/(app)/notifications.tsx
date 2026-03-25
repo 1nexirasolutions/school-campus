@@ -514,7 +514,7 @@ export default function NotificationsScreen() {
                         style={styles.picker}
                       >
                         {classes.map(cls => (
-                          <Picker.Item key={cls.class_id} label={cls.name} value={cls.name} />
+                          <Picker.Item color="#000" key={cls.class_id} label={cls.name} value={cls.name} />
                         ))}
                       </Picker>
                     </View>
@@ -528,9 +528,9 @@ export default function NotificationsScreen() {
                         onValueChange={(value) => setFormData({ ...formData, target_section: value })}
                         style={styles.picker}
                       >
-                        <Picker.Item label="All Sections" value="" />
+                        <Picker.Item color="#000" label="All Sections" value="" />
                         {getCurrentSections().map(section => (
-                          <Picker.Item key={section} label={section} value={section} />
+                          <Picker.Item color="#000" key={section} label={section} value={section} />
                         ))}
                       </Picker>
                     </View>
@@ -634,7 +634,7 @@ export default function NotificationsScreen() {
                         style={styles.picker}
                       >
                         {classes.map(cls => (
-                          <Picker.Item key={cls.class_id} label={cls.name} value={cls.name} />
+                          <Picker.Item color="#000" key={cls.class_id} label={cls.name} value={cls.name} />
                         ))}
                       </Picker>
                     </View>
@@ -647,9 +647,9 @@ export default function NotificationsScreen() {
                         onValueChange={(value) => setEditFormData({ ...editFormData, target_section: value })}
                         style={styles.picker}
                       >
-                        <Picker.Item label="All Sections" value="" />
+                        <Picker.Item color="#000" label="All Sections" value="" />
                         {getEditSections().map(section => (
-                          <Picker.Item key={section} label={section} value={section} />
+                          <Picker.Item color="#000" key={section} label={section} value={section} />
                         ))}
                       </Picker>
                     </View>

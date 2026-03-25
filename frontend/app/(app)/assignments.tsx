@@ -19,6 +19,7 @@ import { apiRequest, formatDateTime } from '../../src/utils/api';
 import { Picker } from '@react-native-picker/picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
+import UniversalDatePicker from '../../src/components/UniversalDatePicker';
 
 interface Assignment {
   assignment_id: string;
@@ -504,7 +505,7 @@ export default function AssignmentsScreen() {
                       style={styles.picker}
                     >
                       {classes.map(cls => (
-                        <Picker.Item key={cls.class_id} label={cls.name} value={cls.name} />
+                        <Picker.Item color="#000" key={cls.class_id} label={cls.name} value={cls.name} />
                       ))}
                     </Picker>
                   </View>
@@ -519,7 +520,7 @@ export default function AssignmentsScreen() {
                       style={styles.picker}
                     >
                       {getCurrentSections().map(section => (
-                        <Picker.Item key={section} label={section} value={section} />
+                        <Picker.Item color="#000" key={section} label={section} value={section} />
                       ))}
                     </Picker>
                   </View>
@@ -534,7 +535,7 @@ export default function AssignmentsScreen() {
                   style={styles.picker}
                 >
                   {getAvailableSubjects().map((subject: string) => (
-                    <Picker.Item key={subject} label={subject} value={subject} />
+                    <Picker.Item color="#000" key={subject} label={subject} value={subject} />
                   ))}
                 </Picker>
               </View>
@@ -549,18 +550,17 @@ export default function AssignmentsScreen() {
                   }}
                   style={styles.picker}
                 >
-                  <Picker.Item label="No Mentor" value="" />
+                  <Picker.Item color="#000" label="No Mentor" value="" />
                   {teachers.map(t => (
-                    <Picker.Item key={t.user_id} label={t.name} value={t.user_id} />
+                    <Picker.Item color="#000" key={t.user_id} label={t.name} value={t.user_id} />
                   ))}
                 </Picker>
               </View>
 
               <Text style={styles.inputLabel}>Deadline *</Text>
-              <TextInput
-                style={styles.textInput}
+              <UniversalDatePicker
                 value={formData.deadline}
-                onChangeText={(text) => setFormData({ ...formData, deadline: text })}
+                onChange={(date) => setFormData({ ...formData, deadline: date })}
                 placeholder="YYYY-MM-DD"
               />
 
