@@ -37,7 +37,12 @@ export default function LogsScreen() {
             const response = await apiRequest('/api/logs?limit=100');
             if (response.ok) {
                 const data = await response.json();
-                setLogs(data);
+                if (Array.isArray(data)) {
+                    setLogs(data);
+                } else {
+                    console.error('Invalid logs response:', data);
+                    setLogs([]);
+                }
             }
         } catch (error) {
             console.error('Failed to load logs:', error);

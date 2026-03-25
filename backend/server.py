@@ -507,6 +507,7 @@ async def login_password(request: LoginRequest, response: Response):
         max_age=SESSION_EXPIRY_DAYS * 24 * 60 * 60
     )
     
+    await log_activity(user["user_id"], user["name"], user["role"], "Logged In", f"User {user['name']} logged in")
     return {"message": "Login successful", "user": user, "session_token": session_token}
 
 @api_router.post("/auth/firebase-login")
@@ -870,6 +871,7 @@ async def create_user(
         "created_at": datetime.now(timezone.utc)
     }
     await db.users.insert_one(new_user)
+    await log_activity(current_user.user_id, current_user.name, current_user.role, "Created User", f"Created {new_user.role} with email {new_user.email}")
     
     logger.info(f"Principal {current_user.name} created user: {new_user_data.email} as {new_user_data.role}")
     
@@ -899,7 +901,7 @@ async def delete_user(
     
     # Delete the user
     await db.users.delete_one({"user_id": user_id})
-    await log_activity(user, "Deleted User", f"Deleted user {user_id}")
+    await log_activity(current_user.user_id, current_user.name, current_user.role, "Deleted User", f"Deleted user {user_id}")
     
     # Clean up their sessions
     await db.user_sessions.delete_many({"user_id": user_id})
@@ -965,6 +967,7 @@ async def create_class(class_info: ClassInfo, user: User = Depends(get_current_u
     
     class_info.class_id = f"class_{uuid.uuid4().hex[:8]}"
     await db.classes.insert_one(class_info.dict())
+    await log_activity(user.user_id, user.name, user.role, "Created Class", f"Class {class_info.name} created")
     return class_info
 
 @api_router.put("/classes/{class_id}")
@@ -1114,6 +1117,7 @@ async def create_timetable_entry(
     )
     
     await db.timetable.insert_one(timetable_entry.dict())
+    await log_activity(user.user_id, user.name, user.role, "Updated Timetable", f"Added subject {timetable_entry.subject}")
     return timetable_entry
 
 @api_router.get("/timetable")
@@ -1221,7 +1225,7 @@ async def create_assignment(
     )
     
     await db.assignments.insert_one(new_assignment.dict())
-    await log_activity(user, "Created Assignment", f"Title: {new_assignment.title}")
+    await log_activity(user.user_id, user.name, user.role, "Created Assignment", f"Title: {new_assignment.title}")
     return new_assignment
 
 @api_router.get("/assignments")
@@ -1542,7 +1546,7 @@ async def create_notification(
     )
     
     await db.notifications.insert_one(new_notification.dict())
-    await log_activity(user, "Created Announcement", f"Title: {new_notification.title}")
+    await log_activity(user.user_id, user.name, user.role, "Created Announcement", f"Title: {new_notification.title}")
     
     # Send Expo Push Notification
     try:
@@ -1778,6 +1782,7 @@ async def add_marks(
                 created_at=datetime.now(timezone.utc)
             )
             await db.marks.insert_one(mark_entry.dict())
+    await log_activity(user.user_id, user.name, user.role, "Recorded Marks", f"Entered marks for {mark_entry.student_name} in {mark_entry.subject}")
             created_records.append(mark_entry)
     
     return created_records
@@ -1997,6 +2002,7 @@ async def record_fee_payment(
     )
     
     await db.fee_payments.insert_one(new_payment.dict())
+    await log_activity(user.user_id, user.name, user.role, "Recorded Payment", f"Amount: {payment.amount_paid} for {payment.student_name}")
     return new_payment
 
 @api_router.get("/fees/payments")
