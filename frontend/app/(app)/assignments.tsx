@@ -19,6 +19,7 @@ import { apiRequest, formatDateTime } from '../../src/utils/api';
 import { Picker } from '@react-native-picker/picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 import UniversalDatePicker from '../../src/components/UniversalDatePicker';
 
 interface Assignment {
@@ -71,6 +72,7 @@ export default function AssignmentsScreen() {
   const [loading, setLoading] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
+  const [editingAssignmentId, setEditingAssignmentId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -216,6 +218,51 @@ export default function AssignmentsScreen() {
     }
   };
 
+  const handleViewPdf = async (base64Data: string, title: string) => {
+    if (!base64Data) return;
+    try {
+      if (Platform.OS === 'web') {
+        const link = document.createElement('a');
+        link.href = `data:application/pdf;base64,${base64Data}`;
+        link.download = `${title}.pdf`;
+        link.click();
+      } else {
+        const fileUri = FileSystem.cacheDirectory + `${title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+        await FileSystem.writeAsStringAsync(fileUri, base64Data, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        const isAvailable = await Sharing.isAvailableAsync();
+        if (isAvailable) {
+          await Sharing.shareAsync(fileUri, {
+            mimeType: 'application/pdf',
+            dialogTitle: `View ${title}`,
+          });
+        } else {
+          Alert.alert('Error', 'Sharing is not available on this device');
+        }
+      }
+    } catch (error) {
+      console.error('Error viewing PDF:', error);
+      Alert.alert('Error', 'Failed to open PDF');
+    }
+  };
+
+  const handleEditAssignment = (assignment: Assignment) => {
+    setEditingAssignmentId(assignment.assignment_id);
+    setFormData({
+      title: assignment.title,
+      description: assignment.description,
+      class_name: assignment.class_name,
+      section: assignment.section,
+      subject: assignment.subject,
+      deadline: assignment.deadline,
+      pdf_data: assignment.pdf_data || '',
+      mentor_id: '',
+      mentor_name: '',
+    });
+    setModalVisible(true);
+  };
+
   const handleCreateAssignment = async () => {
     if (!formData.title || !formData.description || !formData.deadline) {
       Alert.alert('Error', 'Please fill all required fields');
@@ -223,15 +270,20 @@ export default function AssignmentsScreen() {
     }
 
     setLoading(true);
+    const isEditing = !!editingAssignmentId;
+    const url = isEditing ? `/api/assignments/${editingAssignmentId}` : '/api/assignments';
+    const method = isEditing ? 'PUT' : 'POST';
+
     try {
-      const response = await apiRequest('/api/assignments', {
-        method: 'POST',
+      const response = await apiRequest(url, {
+        method,
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        Alert.alert('Success', 'Assignment created');
+        Alert.alert('Success', isEditing ? 'Assignment updated' : 'Assignment created');
         setModalVisible(false);
+        setEditingAssignmentId(null);
         setFormData({
           title: '',
           description: '',
@@ -246,10 +298,10 @@ export default function AssignmentsScreen() {
         loadAssignments();
       } else {
         const error = await response.json();
-        Alert.alert('Error', error.detail || 'Failed to create assignment');
+        Alert.alert('Error', error.detail || `Failed to ${isEditing ? 'update' : 'create'} assignment`);
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to create assignment');
+      Alert.alert('Error', `Failed to ${isEditing ? 'update' : 'create'} assignment`);
     } finally {
       setLoading(false);
     }
@@ -394,12 +446,23 @@ export default function AssignmentsScreen() {
                   </View>
 
                   <View style={styles.cardActions}>
+                    {!!assignment.pdf_data && (
+                      <TouchableOpacity
+                        style={[styles.submitBtn, { backgroundColor: '#2563EB', marginRight: 8 }]}
+                        onPress={() => handleViewPdf(assignment.pdf_data!, assignment.title)}
+                      >
+                        <Ionicons name="document-text" size={16} color="#FFFFFF" />
+                        <Text style={styles.submitBtnText}>View PDF</Text>
+                      </TouchableOpacity>
+                    )}
+
                     {isStudent && (
                       <TouchableOpacity
                         style={[
                           styles.submitBtn,
                           submitted && styles.submittedBtn,
                           deadlinePassed && !submitted && styles.disabledBtn,
+                          { marginRight: 8 }
                         ]}
                         onPress={() => {
                           if (!deadlinePassed && !submitted) {
@@ -421,12 +484,20 @@ export default function AssignmentsScreen() {
                     )}
 
                     {canModifyAssignment(assignment) && (
-                      <TouchableOpacity
-                        style={styles.deleteBtn}
-                        onPress={() => handleDeleteAssignment(assignment.assignment_id)}
-                      >
-                        <Ionicons name="trash-outline" size={18} color="#DC2626" />
-                      </TouchableOpacity>
+                      <>
+                        <TouchableOpacity
+                          style={[styles.deleteBtn, { marginRight: 8 }]}
+                          onPress={() => handleEditAssignment(assignment)}
+                        >
+                          <Ionicons name="create-outline" size={18} color="#4F46E5" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.deleteBtn}
+                          onPress={() => handleDeleteAssignment(assignment.assignment_id)}
+                        >
+                          <Ionicons name="trash-outline" size={18} color="#DC2626" />
+                        </TouchableOpacity>
+                      </>
                     )}
                   </View>
                 </View>
@@ -447,7 +518,21 @@ export default function AssignmentsScreen() {
       {isTeacherOrPrincipal && (
         <TouchableOpacity
           style={styles.fab}
-          onPress={() => setModalVisible(true)}
+          onPress={() => {
+            setEditingAssignmentId(null);
+            setFormData({
+              title: '',
+              description: '',
+              class_name: classes[0]?.name || '',
+              section: classes[0]?.sections[0] || '',
+              subject: SUBJECTS[0],
+              deadline: '',
+              pdf_data: '',
+              mentor_id: '',
+              mentor_name: '',
+            });
+            setModalVisible(true);
+          }}
         >
           <Ionicons name="add" size={28} color="#FFFFFF" />
         </TouchableOpacity>
@@ -463,7 +548,7 @@ export default function AssignmentsScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Create Assignment</Text>
+              <Text style={styles.modalTitle}>{editingAssignmentId ? 'Edit Assignment' : 'Create Assignment'}</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
                 <Ionicons name="close" size={24} color="#6B7280" />
               </TouchableOpacity>
@@ -582,7 +667,7 @@ export default function AssignmentsScreen() {
               disabled={loading}
             >
               <Text style={styles.submitButtonText}>
-                {loading ? 'Creating...' : 'Create Assignment'}
+                {loading ? (editingAssignmentId ? 'Updating...' : 'Creating...') : (editingAssignmentId ? 'Update Assignment' : 'Create Assignment')}
               </Text>
             </TouchableOpacity>
           </View>
