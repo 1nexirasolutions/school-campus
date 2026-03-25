@@ -52,6 +52,16 @@ VALID_ROLES = ["principal", "teacher", "class_teacher", "student"]
 # Pydantic Models
 # ========================
 
+
+class ActivityLog(BaseModel):
+    log_id: str
+    user_id: str
+    user_name: str
+    role: str
+    action: str
+    details: Optional[str] = None
+    created_at: datetime
+
 class User(BaseModel):
     user_id: str
     email: str
@@ -889,6 +899,7 @@ async def delete_user(
     
     # Delete the user
     await db.users.delete_one({"user_id": user_id})
+    await log_activity(user, "Deleted User", f"Deleted user {user_id}")
     
     # Clean up their sessions
     await db.user_sessions.delete_many({"user_id": user_id})
@@ -1210,6 +1221,7 @@ async def create_assignment(
     )
     
     await db.assignments.insert_one(new_assignment.dict())
+    await log_activity(user, "Created Assignment", f"Title: {new_assignment.title}")
     return new_assignment
 
 @api_router.get("/assignments")
@@ -1530,6 +1542,7 @@ async def create_notification(
     )
     
     await db.notifications.insert_one(new_notification.dict())
+    await log_activity(user, "Created Announcement", f"Title: {new_notification.title}")
     
     # Send Expo Push Notification
     try:

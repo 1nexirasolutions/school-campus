@@ -315,6 +315,13 @@ export default function DashboardScreen() {
                 color="#059669"
                 onPress={() => router.push('/(app)/classes')}
               />
+              <QuickActionCard
+                icon="list"
+                title="Logs"
+                subtitle="Activity"
+                color="#64748B"
+                onPress={() => router.push('/(app)/logs')}
+              />
             </>
           )}
           <QuickActionCard
