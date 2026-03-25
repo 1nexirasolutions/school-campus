@@ -391,6 +391,33 @@ async def require_role(user: User, allowed_roles: List[str]):
         raise HTTPException(status_code=403, detail="Insufficient permissions")
 
 # ========================
+# Activity Log Helper
+# ========================
+
+async def log_activity(user_id: str, user_name: str, role: str, action: str, details: Optional[str] = None):
+    """Log an activity to the logs collection"""
+    try:
+        log = {
+            "log_id": f"log_{uuid.uuid4().hex[:12]}",
+            "user_id": user_id,
+            "user_name": user_name,
+            "role": role,
+            "action": action,
+            "details": details,
+            "created_at": datetime.now(timezone.utc)
+        }
+        await db.logs.insert_one(log)
+    except Exception as e:
+        logger.error(f"Error logging activity: {e}")
+
+@api_router.get("/logs")
+async def get_logs(limit: int = 200, user: User = Depends(get_current_user)):
+    """Get recent activity logs (Principal only)"""
+    await require_role(user, ["principal"])
+    logs = await db.logs.find({}, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
+    return logs
+
+# ========================
 # Auth Routes
 # ========================
 
@@ -871,7 +898,7 @@ async def create_user(
         "created_at": datetime.now(timezone.utc)
     }
     await db.users.insert_one(new_user)
-    await log_activity(current_user.user_id, current_user.name, current_user.role, "Created User", f"Created {new_user.role} with email {new_user.email}")
+    await log_activity(current_user.user_id, current_user.name, current_user.role, "Created User", f"Created {new_user_data.role} with email {new_user_data.email}")
     
     logger.info(f"Principal {current_user.name} created user: {new_user_data.email} as {new_user_data.role}")
     
@@ -1782,7 +1809,7 @@ async def add_marks(
                 created_at=datetime.now(timezone.utc)
             )
             await db.marks.insert_one(mark_entry.dict())
-    await log_activity(user.user_id, user.name, user.role, "Recorded Marks", f"Entered marks for {mark_entry.student_name} in {mark_entry.subject}")
+            await log_activity(user.user_id, user.name, user.role, "Recorded Marks", f"Entered marks for {mark_entry.student_name} in {mark_entry.subject}")
             created_records.append(mark_entry)
     
     return created_records
